@@ -9,7 +9,7 @@ class ProductController(http.Controller):
         self.helper = request.env['service.helper']
         self.product_service = request.env['service.product']
         
-    @http.route('/api/products/all', auth='user', methods=["POST"], csrf=False, cors="*", website=False)
+    @http.route('/api/products/all', auth='public', methods=["POST"], csrf=False, cors="*")
     def getAll(self, **kw):
         try:
             res = self.product_service.getAll()
@@ -17,20 +17,20 @@ class ProductController(http.Controller):
             return self.helper.res_json([], False, f'Err {e}')
         return self.helper.res_json(res, True, 'Berhasil mendapatkan semua produk')
     
-    @http.route('/api/products/create', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
-    def create(self, **kw):
-        kolom_dibutuhkan = ['name', 'price', 'image']
-        try:
-            self.helper.validasi_kolom(kw, kolom_dibutuhkan)
-        except exceptions.ValidationError as e:
-            return self.helper.res_json([], False, f'Err {e}')
-        try:
-            res = self.product_service.create(kw)
-        except Exception as e:
-            return self.helper.res_json([], False, f'Err {e}')
-        return self.helper.res_json(res, True, 'Berhasil edit product')
+    @http.route('/api/products/create', auth='public', methods=["POST"], csrf=False, cors="*")
+    def buat(self, **kw):
+       kolom_dibutuhkan = ['name', 'price', 'image']
+       try:
+           self.helper.validasi_kolom(kw, kolom_dibutuhkan)
+       except exceptions.ValidationError as e:
+           return self.helper.res_json([], False, f'Err {e}')
+       try:
+           res = self.product_service.create(kw)
+       except Exception as e:
+           return self.helper.res_json([], False, f'Err {e}')
+       return self.helper.res_json(res, True, 'Berhasil edit product')
     
-    @http.route('/api/products/update/<int:id>', auth='user', methods=["POST"], csrf=False, cors="*", website=False)
+    @http.route('/api/products/update/<int:id>', auth='public', methods=["POST"], csrf=False, cors="*")
     def update(self, id,**kw):
         try:
             res = self.product_service.update(id, kw)
@@ -38,7 +38,7 @@ class ProductController(http.Controller):
             return self.helper.res_json([], False, f'Err {e}')
         return self.helper.res_json(res, True, 'Berhasil mendapatkan semua produk')
     
-    @http.route('/api/products/delete/<int:id>', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
+    @http.route('/api/products/delete/<int:id>', auth='public', methods=["POST"], csrf=False, cors="*")
     def create(self, id,**kw):
         if not id:
             return self.helper.res_json([], False, f'Err id required')

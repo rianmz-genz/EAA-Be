@@ -9,7 +9,7 @@ class AuthController(http.Controller):
         self.helper = request.env['service.helper']
         self.auth_service = request.env['service.auth']
         
-    @http.route('/api/login', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
+    @http.route('/api/login', auth='public', methods=["POST"], csrf=False, cors="*")
     def login(self, **kw):
         kolom_dibutuhkan = ['email', 'password', 'db']
         try:
