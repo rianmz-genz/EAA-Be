@@ -10,3 +10,5 @@ class NewProduct(models.Model):
     name = fields.Char()
     price = fields.Integer()
     image = fields.Binary()
+    user_id = fields.Many2one('res.users', string="User")
+
