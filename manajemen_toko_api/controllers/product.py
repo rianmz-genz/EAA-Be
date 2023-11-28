@@ -11,15 +11,21 @@ class ProductController(http.Controller):
         
     @http.route('/api/products/all', auth='public', methods=["POST"], csrf=False, cors="*")
     def getAll(self, **kw):
+        kolom_dibutuhkan = ['uid']
         try:
-            res = self.product_service.getAll()
+            self.helper.validasi_kolom(kw, kolom_dibutuhkan)
+        except exceptions.ValidationError as e:
+            return self.helper.res_json([], False, f'Err {e}')
+       
+        try:
+            res = self.product_service.getAll(kw)
         except Exception as e:
             return self.helper.res_json([], False, f'Err {e}')
         return self.helper.res_json(res, True, 'Berhasil mendapatkan semua produk')
     
     @http.route('/api/products/create', auth='public', methods=["POST"], csrf=False, cors="*")
     def buat(self, **kw):
-       kolom_dibutuhkan = ['name', 'price', 'image']
+       kolom_dibutuhkan = ['name', 'price', 'image', 'uid']
        try:
            self.helper.validasi_kolom(kw, kolom_dibutuhkan)
        except exceptions.ValidationError as e:
