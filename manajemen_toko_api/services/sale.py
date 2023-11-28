@@ -5,12 +5,22 @@ import base64
 class SaleService(models.Model):
     _name = 'service.sale'
     _description = 'Sale Service'
-    
+    def getUid(self, kw):
+        uid = kw.get('uid')
+        if uid:
+            uid = int(kw.get('uid'))
+        else:
+            uid = 1
+        return uid
     @api.model
-    def get_all(self):
+    def get_all(self, kw):
+        authorization_header = self.getUid(kw)
         Sale = http.request.env['new.sale'].sudo()
-        sales = Sale.search([])
-
+        sales = Sale.search([
+            ('user_id', '=', int(authorization_header))
+        ])
+        if len(sales) == 0:
+            raise exceptions.AccessError(message=f"Data Kosong {authorization_header}")
         sale_data = []
         for sale in sales:
             sale_data.append({
