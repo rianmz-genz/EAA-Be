@@ -5,13 +5,22 @@ import base64
 class ProductService(models.Model):
     _name = 'service.product'
     _description = 'Product Service'
-
+    def getUid(self, kw):
+        uid = kw.get('uid')
+        if uid:
+            uid = int(kw.get('uid'))
+        else:
+            uid = 1
+        return uid
     @api.model
-    def getAll(self):
+    def getAll(self, kw):
         results = []
         Product = request.env['new.product'].sudo()
+        uid = self.getUid(kw)
         try:
-            products = Product.search([])
+            products = Product.search([
+                ('user_id', '=', uid)
+            ])
         except Exception as e:
             raise exceptions.AccessError(message=e)
         
@@ -33,7 +42,7 @@ class ProductService(models.Model):
     @api.model
     def create(self, kw):
         Product = request.env['new.product'].sudo()
-        
+        uid = self.getUid(kw)
         try:
             image_binary = base64.b64encode(kw['image'].read()) if kw.get('image') else False
 
@@ -41,6 +50,7 @@ class ProductService(models.Model):
             new_product = Product.create({
                 'name': kw['name'],
                 'price': kw['price'],
+                'user_id': uid,
                 'image': image_binary
             })
 
