@@ -21,3 +21,16 @@ class AuthController(http.Controller):
         except exceptions.AccessDenied as e:
             return self.helper.res_json([], False, f'Err {e}')
         return self.helper.res_json(res, True, 'Berhasil login')
+    
+    @http.route('/api/register', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
+    def register_user(self, **kw):
+        kolom_dibutuhkan = ['email', 'password', 'name']
+        try:
+            self.helper.validasi_kolom(kw, kolom_dibutuhkan)
+        except exceptions.ValidationError as e:
+            return self.helper.res_json([], False, f'Err {e}')
+        try:
+            res = self.auth_service.processRegister(kw)
+        except exceptions.AccessDenied as e:
+            return self.helper.res_json([], False, f'Err {e}')
+        return self.helper.res_json(res, True, 'Berhasil Mendaftar')
