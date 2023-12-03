@@ -21,6 +21,7 @@ class AuthService(models.Model):
         name = kw.get('name')
         email = kw.get('email')
         password = kw.get('password')
+        image_1920 = kw.get('image_1920')
 
         # Buat data baru untuk user
         User = request.env['res.users'].sudo()
