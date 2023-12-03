@@ -4,9 +4,9 @@ from odoo import models, fields, api
 
 
 class InheritUser(models.Model):
-    _inherit = 'res.user'
+    _inherit = 'res.users'
 
-    is_active = fields.Boolean()
+    is_active = fields.Boolean(default=False)
     
     @api.model
     def activate_user(self):

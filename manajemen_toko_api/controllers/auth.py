@@ -11,7 +11,7 @@ class AuthController(http.Controller):
         
     @http.route('/api/login', auth='public', methods=["POST"], csrf=False, cors="*")
     def login(self, **kw):
-        kolom_dibutuhkan = ['email', 'password', 'db']
+        kolom_dibutuhkan = ['email', 'password', 'db', 'image_1920']
         try:
             self.helper.validasi_kolom(kw, kolom_dibutuhkan)
         except exceptions.ValidationError as e:
@@ -34,3 +34,16 @@ class AuthController(http.Controller):
         except exceptions.AccessDenied as e:
             return self.helper.res_json([], False, f'Err {e}')
         return self.helper.res_json(res, True, 'Berhasil Mendaftar')
+
+    @http.route('/api/upload-payment', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
+    def upload_payment(self, **kw):
+        kolom_dibutuhkan = ['image', 'summary', 'user_id']
+        try:
+            self.helper.validasi_kolom(kw, kolom_dibutuhkan)
+        except exceptions.ValidationError as e:
+            return self.helper.res_json([], False, f'Err {e}')
+        try:
+            res = self.auth_service.uploadPayment(kw)
+        except Exception as e:
+            return self.helper.res_json([], False, f'Err {e}')
+        return self.helper.res_json(res, True, 'Berhasil Mengupload')
