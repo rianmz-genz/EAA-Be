@@ -11,7 +11,7 @@ class AuthController(http.Controller):
         
     @http.route('/api/login', auth='public', methods=["POST"], csrf=False, cors="*")
     def login(self, **kw):
-        kolom_dibutuhkan = ['email', 'password', 'db', 'image_1920']
+        kolom_dibutuhkan = ['email', 'password', 'db']
         try:
             self.helper.validasi_kolom(kw, kolom_dibutuhkan)
         except exceptions.ValidationError as e:
@@ -24,7 +24,7 @@ class AuthController(http.Controller):
     
     @http.route('/api/register', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
     def register_user(self, **kw):
-        kolom_dibutuhkan = ['email', 'password', 'name']
+        kolom_dibutuhkan = ['email', 'password', 'name', 'image_1920', 'address']
         try:
             self.helper.validasi_kolom(kw, kolom_dibutuhkan)
         except exceptions.ValidationError as e:

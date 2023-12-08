@@ -7,8 +7,8 @@ class InheritUser(models.Model):
     _inherit = 'res.users'
 
     is_active = fields.Boolean(default=False)
+    address = fields.Text(string="Alamat")
     
-    @api.model
     def activate_user(self):
         self.is_active = True
 

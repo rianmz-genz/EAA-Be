@@ -1,6 +1,7 @@
 from odoo import api, models
 from odoo import http, _, exceptions
 from odoo.http import request
+import base64
 class AuthService(models.Model):
     _name = 'service.auth'
     _description = 'Auth Service'
@@ -10,10 +11,18 @@ class AuthService(models.Model):
         login = kw.get('email')
         password = kw.get('password')
         db = kw.get('db')
+        User = request.env['res.users'].sudo()
+        user = User.search([
+            ('login', '=', login)
+        ], limit=1)
+        if not user:
+            raise exceptions.AccessDenied(message="Pengguna tidak ditemukan")
+        if not user.is_active:
+            raise exceptions.AccessDenied(message="Pengguna belum aktif")
         try:
             http.request.session.authenticate(db, login, password)
         except Exception as e:
-            raise exceptions.AccessDenied(message=e)
+            raise exceptions.AccessDenied(message="Password tidak sesuai")
         return request.env['ir.http'].session_info()
     
     @api.model
@@ -22,6 +31,7 @@ class AuthService(models.Model):
         email = kw.get('email')
         password = kw.get('password')
         image_1920 = kw.get('image_1920')
+        address = kw.get('address')
         image_binary = base64.b64encode(image_1920.read()) if image_1920 else False
         # Buat data baru untuk user
         User = request.env['res.users'].sudo()
@@ -30,6 +40,7 @@ class AuthService(models.Model):
             'login': email,
             'email': email,
             'password': password,
+            'address': address,
             'image_1920': image_binary
         })
         image_base64 = image_binary.decode('utf-8') if image_binary else None

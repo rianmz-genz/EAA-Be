@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_manajemen_toko_api_manajemen_toko_api,manajemen_toko_api.manajemen_toko_api,model_manajemen_toko_api_manajemen_toko_api,base.group_user,1,1,1,1
+access_new_payment,new.payment,model_new_payment,base.group_user,1,1,1,1
