@@ -18,7 +18,7 @@ class AuthService(models.Model):
         if not user:
             raise exceptions.AccessDenied(message="Pengguna tidak ditemukan")
         if not user.is_active:
-            raise exceptions.AccessDenied(message="Pengguna belum aktif")
+            raise exceptions.AccessDenied(message="Pengguna belum aktif silahkan hubungi admin")
         try:
             http.request.session.authenticate(db, login, password)
         except Exception as e:
@@ -32,6 +32,7 @@ class AuthService(models.Model):
         password = kw.get('password')
         image_1920 = kw.get('image_1920')
         address = kw.get('address')
+        phone = kw.get('phone')
         image_binary = base64.b64encode(image_1920.read()) if image_1920 else False
         # Buat data baru untuk user
         User = request.env['res.users'].sudo()
@@ -41,7 +42,8 @@ class AuthService(models.Model):
             'email': email,
             'password': password,
             'address': address,
-            'image_1920': image_binary
+            'image_1920': image_binary,
+            'phone': phone,
         })
         image_base64 = image_binary.decode('utf-8') if image_binary else None
         return {
@@ -50,7 +52,8 @@ class AuthService(models.Model):
                     'login': email,
                     'email': email,
                     'password': password,
-                    'image': image_base64
+                    'image': image_base64,
+                    'phone': phone,
                 }
 
     @api.model
@@ -63,7 +66,7 @@ class AuthService(models.Model):
         payment = Payment.create({
             'image': image_binary,
             'summary': summary,
-            'user_id': user_id,
+            'user_id': int(user_id),
         })
         if not payment:
             raise  exceptions.AccessDenied(message="Error create payment")
@@ -75,3 +78,29 @@ class AuthService(models.Model):
             'summary': summary
         }
 
+    @api.model
+    def who_am_i(self, kw):
+        id = kw.get('uid')
+        User = request.env['res.users'].sudo()
+        try:
+            user = User.search([
+            ('id', '=', int(id))
+            ], limit=1)
+        except Exception as e:
+            raise exceptions.AccessError(message=e)
+        if not user:
+            raise exceptions.AccessDenied(message="Pengguna tidak ditemukan")
+        if not user.is_active:
+            raise exceptions.AccessDenied(message="Pengguna belum aktif silahkan hubungi admin")
+        image = False
+        if user.image_1920:
+            image = user.image_1920.decode('ascii')
+        return {
+            'id': user.id,
+            'name': user.name,
+            'email': user.email,
+            'phone': user.phone,
+            'address': user.address,
+            'logo': image,
+            'email': user.email,
+        }

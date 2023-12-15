@@ -41,6 +41,37 @@ class SaleService(models.Model):
         return sale_data
     
     @api.model
+    def get_data_chart(self, kw):
+        authorization_header = self.getUid(kw)
+        Sale = http.request.env['new.sale'].sudo()
+
+        # Group by date and sum total
+        sales = Sale.search([
+            ('user_id', '=', int(authorization_header))
+        ])
+
+        if not sales:
+            raise exceptions.AccessError(message=f"Data Kosong {authorization_header}")
+
+        sale_data = {}
+        for sale in sales:
+            date_key = sale.date
+            total = sum(line.total for line in sale.line_ids)
+
+            # Tambahkan ke objek yang memiliki tanggal yang sama
+            if date_key in sale_data:
+                sale_data[date_key]['total'] += total
+            else:
+                sale_data[date_key] = {'date': date_key, 'total': total}
+
+        # Convert hasil ke dalam list array
+        result_data = [{'date': item['date'], 'total': item['total']} for item in sale_data.values()]
+        return result_data
+
+
+
+    
+    @api.model
     def get_by_id(self, id):
         sale = request.env['new.sale'].sudo().browse(id)
         if sale:

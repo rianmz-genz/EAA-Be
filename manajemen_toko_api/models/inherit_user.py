@@ -8,6 +8,7 @@ class InheritUser(models.Model):
 
     is_active = fields.Boolean(default=False)
     address = fields.Text(string="Alamat")
+    phone = fields.Text(string="No Handphone")
     
     def activate_user(self):
         self.is_active = True

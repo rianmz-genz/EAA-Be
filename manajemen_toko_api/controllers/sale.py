@@ -31,6 +31,20 @@ class SaleApiController(http.Controller):
             return self.helper.res_json({}, False, f'Err {e}')
         return self.helper.res_json(sale_data, True, 'Berhasil mendapatkan semua penjualan')
 
+        
+    @http.route('/api/sale/chart', auth='public', methods=['POST'], csrf=False, cors="*")
+    def get_data_chart(self, **kw):
+        kolom_dibutuhkan = ['uid']
+        try:
+            self.helper.validasi_kolom(kw, kolom_dibutuhkan)
+        except exceptions.ValidationError as e:
+            return self.helper.res_json([], False, f'Err {e}')
+        try:
+            sale_data = self.sale_service.get_data_chart(kw)
+        except Exception as e:
+            return self.helper.res_json({}, False, f'Err {e}')
+        return self.helper.res_json(sale_data, True, 'Berhasil mendapatkan semua penjualan')
+
     @http.route('/api/sale/create', auth='public', methods=['POST'], csrf=False, cors="*")
     def create_sale(self, **kw):
         kolom_dibutuhkan = ['uid', 'data']

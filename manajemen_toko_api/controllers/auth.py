@@ -24,7 +24,7 @@ class AuthController(http.Controller):
     
     @http.route('/api/register', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
     def register_user(self, **kw):
-        kolom_dibutuhkan = ['email', 'password', 'name', 'image_1920', 'address']
+        kolom_dibutuhkan = ['email', 'password', 'name', 'image_1920', 'address', 'phone']
         try:
             self.helper.validasi_kolom(kw, kolom_dibutuhkan)
         except exceptions.ValidationError as e:
@@ -32,7 +32,7 @@ class AuthController(http.Controller):
         try:
             res = self.auth_service.processRegister(kw)
         except exceptions.AccessDenied as e:
-            return self.helper.res_json([], False, f'Err {e}')
+            return self.helper.res_json([], False, f'{e}')
         return self.helper.res_json(res, True, 'Berhasil Mendaftar')
 
     @http.route('/api/upload-payment', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
@@ -47,3 +47,16 @@ class AuthController(http.Controller):
         except Exception as e:
             return self.helper.res_json([], False, f'Err {e}')
         return self.helper.res_json(res, True, 'Berhasil Mengupload')
+    
+    @http.route('/api/me', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
+    def me(self, **kw):
+        kolom_dibutuhkan = ['uid']
+        try:
+            self.helper.validasi_kolom(kw, kolom_dibutuhkan)
+        except exceptions.ValidationError as e:
+            return self.helper.res_json([], False, f'Err {e}')
+        try:
+            res = self.auth_service.who_am_i(kw)
+        except Exception as e:
+            return self.helper.res_json([], False, f'Err {e}')
+        return self.helper.res_json(res, True, 'Berhasil Mendapatkan data')
