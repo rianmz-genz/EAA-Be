@@ -2,9 +2,18 @@ from odoo import api, models
 from odoo import http, _, exceptions
 from odoo.http import request
 import base64
+
 class AuthService(models.Model):
     _name = 'service.auth'
     _description = 'Auth Service'
+
+    def get_uid(self, kw):
+        uid = kw.get('uid')
+        if uid:
+            uid = int(kw.get('uid'))
+        else:
+            uid = False
+        return uid
 
     @api.model
     def prosesLogin(self, kw):
@@ -103,4 +112,42 @@ class AuthService(models.Model):
             'address': user.address,
             'logo': image,
             'email': user.email,
+        }
+
+    @api.model
+    def self_modify(self, kw):
+        User = self.env['res.users'].sudo()
+
+        # 1. Check for Invalid User ID
+        user_id = int(kw.get("uid", 0))
+        user = User.browse(user_id)
+        if not user.exists():
+            raise exceptions.AccessDenied(message="Pengguna tidak ditemukan")
+
+        # Prepare the values to be updated
+        values_to_update = {}
+        if kw.get('password'):
+            values_to_update['password'] = kw['password']
+        if kw.get('name'):
+            values_to_update['name'] = kw['name']
+        if kw.get('email'):
+            values_to_update['login'] = kw['email']
+        if kw.get('phone'):
+            values_to_update['phone'] = kw['phone']
+        if kw.get('address'):
+            values_to_update['address'] = kw['address']
+        if kw.get('image_1920'):
+            values_to_update['image_1920'] = base64.b64encode(kw['image_1920'].read())
+
+        # 2. Use with Statement for Database Transactions
+        with self.env.cr.savepoint():
+            # 3. Check for Active Recordset
+            user.write(values_to_update)
+
+        # 4. Check for Transaction Commit
+        self.env.cr.commit()
+
+        return {
+            'id': user.id,
+            'name': user.name,
         }

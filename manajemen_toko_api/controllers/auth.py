@@ -60,3 +60,11 @@ class AuthController(http.Controller):
         except Exception as e:
             return self.helper.res_json([], False, f'Err {e}')
         return self.helper.res_json(res, True, 'Berhasil Mendapatkan data')
+
+    @http.route('/api/self', auth='public', methods=["POST"], csrf=False, cors="*", website=False)
+    def self_modify(self, **kw):
+        try:
+            res = self.auth_service.self_modify(kw)
+        except Exception as e:
+            return self.helper.res_json([], False, f'Err {e}')
+        return self.helper.res_json(res, True, 'Berhasil Mengubah profil data')
